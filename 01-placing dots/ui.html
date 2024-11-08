@@ -1,0 +1,83 @@
+
+<input id="dot-input" placeholder="0" type="number" min="1"></input>
+<button id="btn-add-dots">Add dots</button>
+
+
+<!-- Figma theme colors -->
+<style>
+    body {
+      font-family: sans-serif;
+      color: var(--figma-color-text);
+      background-color: var(--figma-color-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 1rem;
+    }
+    button {
+      background-color: var(--figma-color-bg-brand);
+      color: var(--figma-color-text-onbrand);
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+    }
+
+    input {
+        border: none;
+        outline: none;  /* Removes the focus outline */
+        font-size: 30px;
+        text-align: center;
+        padding: 8px;
+        width: 200px;  /* Adjust as needed */
+        background: transparent;
+        color: var(--figma-color-text);
+    }
+
+    /* Hide spinner buttons for all browsers */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        margin: 0 !important;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield !important;
+        appearance: textfield !important;
+    }
+  </style>
+
+
+<script>
+    // DOM elements
+    const amountOfDots = document.querySelector("#dot-input");
+    const addDotButton = document.querySelector("#btn-add-dots");
+
+    // Focus and select the input
+    amountOfDots.focus();
+    amountOfDots.select();
+    // Functions
+    function handleAddDots(e) {
+        e.preventDefault();
+
+        // Convert input to number
+        const numberOfDots = parseInt(amountOfDots.value);
+        parent.postMessage({ 
+            pluginMessage: { 
+                type: "DRAW_CIRCLES",
+                numberOfDots
+            } }, "*");
+
+            // Reset input value
+        amountOfDots.value = '';
+        // Re-focus the input
+        amountOfDots.focus();
+    }
+
+    // Event listeners
+    addDotButton.addEventListener("click", handleAddDots);
+
+</script>
