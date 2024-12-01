@@ -1,0 +1,16 @@
+{
+  "name": "06-dynamic-number-dots",
+  "version": "1.0.0",
+  "main": "code.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.103.0",
+    "typescript": "^5.7.2"
+  }
+}
