@@ -1,33 +1,89 @@
 <h1 id="dot-amount-display">You've got 0 Dots on the canvas</h1>
-<button id="btn-add-dot">Add a Dot</button>
-
+<div id="groups-container"></div>
+<button id="btn-add-group">New Group</button>
 
 <script>
+    // Initialize groups object
+    let groups = {};
+
     const displayDotCount = document.querySelector("#dot-amount-display");
-    const addDotBtn = document.querySelector("#btn-add-dot");
+    const addGroupBtn = document.querySelector("#btn-add-group");
+    const groupsContainer = document.querySelector("#groups-container");
 
-    // FUNCTIONS
-    // Add dot to canvas
-    function addBtnClicked (e) {
-        e.preventDefault();
+    // Render groups in the UI
+    function renderGroups(groupsData) {
+        console.log("Rendering groups data:", JSON.stringify(groupsData, null, 2)); // Better debug view
+        groupsContainer.innerHTML = '';
+        
+        Object.entries(groupsData).forEach(([groupId, group]) => {
+            console.log(`Rendering group ${groupId}:`, JSON.stringify(group, null, 2)); // Better debug view
+            
+            const groupElement = document.createElement('div');
+            groupElement.className = 'group-row';
+            
+            // Directly access the nested properties
+            const groupName = document.createElement('span');
+            groupName.textContent = `${group.name}: ${group.dotCount} Dot${group.dotCount !== 1 ? 's' : ''}`;
+            
+            const addButton = document.createElement('button');
+            addButton.textContent = '+';
+            addButton.onclick = () => addDotToGroup(groupId);
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = '🗑️';
+            deleteButton.onclick = () => deleteGroup(groupId);
+            
+            groupElement.appendChild(groupName);
+            groupElement.appendChild(addButton);
+            groupElement.appendChild(deleteButton);
+            groupsContainer.appendChild(groupElement);
+        });
+    }
 
+    // Add new group
+    function addNewGroup() {
+        const newGroupId = `group-${Object.keys(groups).length + 1}`;
+        groups[newGroupId] = { name: `Group ${Object.keys(groups).length + 1}`, dotCount: 0 };
         parent.postMessage({ 
             pluginMessage: { 
-                type: "ADD_DOT"
-            } }, "*");
-
+                type: "SAVE_GROUPS",
+                groups: groups
+            } 
+        }, "*");
+        renderGroups(groups);
     }
-    
 
-    // Add one to dot count
+    // Add dot to a specific group
+    function addDotToGroup(groupId) {
+        parent.postMessage({ 
+            pluginMessage: { 
+                type: "ADD_DOT",
+                groupId: groupId
+            } 
+        }, "*");
+    }
 
-    // EVENTLISTENERS
-    addDotBtn.addEventListener("click", addBtnClicked);
+    // Delete a group and its dots
+    function deleteGroup(groupId) {
+        delete groups[groupId];
+        parent.postMessage({ 
+            pluginMessage: { 
+                type: "DELETE_GROUP",
+                groupId: groupId,
+                groups: groups
+            } 
+        }, "*");
+    }
+
+    // Event listeners
+    addGroupBtn.addEventListener("click", addNewGroup);
 
     window.onmessage = (event) => {
-            const msg = event.data.pluginMessage;
-            if (msg.type === 'UPDATE_COUNT') {
-                displayDotCount.textContent = `You've got ${msg.count} Dots on the canvas`;
-            }
-        };
+        const msg = event.data.pluginMessage;
+        if (msg.type === 'UPDATE_COUNT') {
+            displayDotCount.textContent = `You've got ${msg.count} Dots on the canvas`;
+            groups = msg.groups;
+            renderGroups(groups);
+        }
+    };
 </script>
